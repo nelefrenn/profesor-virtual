@@ -7,9 +7,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 import os
 import random
-import traceback  # Importar para obtener detalles del error
+import traceback  # Para capturar errores en los logs
 
-# 🔹 **Solución definitiva para descargar 'punkt' en Render**
+# 🔹 **Solución definitiva para descargar 'punkt' y otros modelos en Render**
 nltk_data_path = "/opt/render/nltk_data"
 if not os.path.exists(nltk_data_path):
     os.makedirs(nltk_data_path)
@@ -17,8 +17,11 @@ if not os.path.exists(nltk_data_path):
 # Configurar NLTK para usar esa carpeta
 nltk.data.path.append(nltk_data_path)
 
-# Descargar los recursos necesarios de NLTK en Render
+# 🔹 Descargar explícitamente los modelos necesarios
 nltk.download('punkt', download_dir=nltk_data_path)
+nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_path)
+nltk.download('wordnet', download_dir=nltk_data_path)
+nltk.download('omw-1.4', download_dir=nltk_data_path)
 
 app = FastAPI()
 
@@ -29,7 +32,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
-    expose_headers=["Access-Control-Allow-Origin"],  # 🔹 Asegura que el navegador la reciba
+    expose_headers=["Access-Control-Allow-Origin"],  # Asegura que el navegador reciba la cabecera
 )
 
 # 🔹 **CATEGORÍAS DISPONIBLES**
