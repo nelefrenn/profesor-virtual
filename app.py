@@ -4,10 +4,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
+import os
 import random
 
-# Descarga automática de NLTK en Render
-nltk.download('punkt')
+# Asegurar la carpeta donde NLTK almacena los datos en Render
+nltk_data_path = "/opt/render/nltk_data"
+if not os.path.exists(nltk_data_path):
+    os.makedirs(nltk_data_path)
+
+# Configurar NLTK para usar esa carpeta
+nltk.data.path.append(nltk_data_path)
+
+# Descargar los recursos necesarios de NLTK en Render
+nltk.download('punkt', download_dir=nltk_data_path)
 
 app = FastAPI()
 
@@ -84,8 +93,5 @@ def obtener_respuesta(pregunta: str, categoria: str = Query(..., description="Se
 @app.get("/")
 def home():
     return {"mensaje": "El Profesor Virtual de Salud Pública está en línea."}
-
-
-
 
 
