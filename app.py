@@ -1,9 +1,19 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 app = FastAPI()
+
+# Habilitar CORS para permitir conexiones desde GitHub Pages
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Aquí puedes especificar solo tu dominio de GitHub Pages
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Cargar datos
 with open("tokens_oraciones.txt", "r", encoding="utf-8") as file:
