@@ -17,7 +17,7 @@ if not os.path.exists(nltk_data_path):
 # Configurar NLTK para usar esa carpeta
 nltk.data.path.append(nltk_data_path)
 
-# 🔹 Descargar explícitamente los modelos necesarios
+# 🔹 Descargar explícitamente los modelos necesarios en español
 nltk.download('punkt', download_dir=nltk_data_path)
 nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_path)
 nltk.download('wordnet', download_dir=nltk_data_path)
@@ -77,14 +77,16 @@ def generar_respuesta(consulta, categoria):
     similitudes = cosine_similarity(consulta_tfidf, matriz_tfidf)
     indices_ordenados = np.argsort(similitudes[0])[::-1]
 
-    # Obtener respuestas más relevantes dentro de la categoría
     respuestas = [categorias[categoria][i] for i in indices_ordenados[:3] if similitudes[0][i] > 0.4]
 
     if not respuestas:
         return "No se encontró información específica sobre tu consulta en esta categoría."
 
     texto_unido = " ".join(respuestas)
-    frases = nltk.sent_tokenize(texto_unido)
+
+    # 🔹 **Corrección: Especificar idioma en sent_tokenize**
+    frases = nltk.tokenize.sent_tokenize(texto_unido, language="spanish")
+    
     random.shuffle(frases)
     respuesta_final = " ".join(frases[:2])
 
