@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesor Virtual de Salud Pública</title>
+    <script>
+        async function buscarRespuesta() {
+            const pregunta = document.getElementById("pregunta").value;
+            const respuestaDiv = document.getElementById("respuesta");
+            
+            if (pregunta.trim() === "") {
+                respuestaDiv.innerHTML = "Por favor, ingresa una pregunta.";
+                return;
+            }
+            
+            respuestaDiv.innerHTML = "Buscando respuesta...";
+            
+            try {
+                const response = await fetch(`https://profesor-virtual.onrender.com/buscar?pregunta=${encodeURIComponent(pregunta)}`);
+                const data = await response.json();
+                respuestaDiv.innerHTML = `<strong>Respuesta:</strong> ${data.respuesta}`;
+            } catch (error) {
+                respuestaDiv.innerHTML = "Error al obtener la respuesta. Inténtalo de nuevo más tarde.";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Profesor Virtual de Salud Pública</h1>
+    <label for="pregunta">Escribe tu pregunta:</label>
+    <input type="text" id="pregunta" placeholder="Ej. ¿Qué es la salud pública?">
+    <button onclick="buscarRespuesta()">Buscar</button>
+    <div id="respuesta"></div>
+</body>
+</html>
