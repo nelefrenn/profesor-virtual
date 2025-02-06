@@ -26,8 +26,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permitir TODAS las conexiones (necesario para GitHub Pages)
     allow_credentials=True,
-    allow_methods=["*"],  # Permitir todos los métodos (GET, POST, OPTIONS)
+    allow_methods=["GET", "POST", "OPTIONS"],  # Permitir métodos necesarios
     allow_headers=["*"],  # Permitir todos los encabezados
+    expose_headers=["Access-Control-Allow-Origin"],  # 🔹 Asegura que el navegador reciba la cabecera
 )
 
 # 🔹 **CATEGORÍAS DISPONIBLES**
@@ -88,14 +89,16 @@ def generar_respuesta(consulta, categoria):
 # 🔹 **Endpoint de consulta con selección de categoría**
 @app.get("/buscar")
 def obtener_respuesta(pregunta: str, categoria: str = Query(..., description="Selecciona una categoría")):
-    respuesta = generar_respuesta(pregunta, categoria)
-    return JSONResponse(content={"respuesta": respuesta}, headers={"Access-Control-Allow-Origin": "*"})
+    try:
+        respuesta = generar_respuesta(pregunta, categoria)
+        return JSONResponse(content={"respuesta": respuesta}, headers={"Access-Control-Allow-Origin": "*"})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500, headers={"Access-Control-Allow-Origin": "*"})
 
 # 🔹 **Ruta de prueba para verificar que el servidor está activo**
 @app.get("/")
 def home():
     return JSONResponse(content={"mensaje": "El Profesor Virtual de Salud Pública está en línea."}, headers={"Access-Control-Allow-Origin": "*"})
 
-    return {"mensaje": "El Profesor Virtual de Salud Pública está en línea."}
 
 
