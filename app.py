@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 import random
 
-# Descargar recursos de NLTK en el servidor
+# Descarga automática de NLTK en Render
 nltk.download('punkt')
 
 app = FastAPI()
@@ -14,53 +14,77 @@ app = FastAPI()
 # Habilitar CORS para permitir solicitudes desde GitHub Pages
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite solicitudes desde cualquier origen
+    allow_origins=["https://nelefrenn.github.io"],  # Reemplaza con tu dominio en GitHub Pages
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Cargar datos desde el archivo de oraciones
+# CATEGORÍAS DISPONIBLES
+categorias = {
+    "Historia de la gestión en la salud pública": [],
+    "Contexto, tendencias y retos de la Salud Pública": [],
+    "Causalidad y prevención": [],
+    "Proceso salud-enfermedad-atención": [],
+    "Sistema general de seguridad social integral": [],
+}
+
+# Cargar datos y clasificarlos en categorías
 with open("tokens_oraciones.txt", "r", encoding="utf-8") as file:
     oraciones = file.readlines()
 
 oraciones = [oracion.strip() for oracion in oraciones if oracion.strip()]
 
-# Tokenización en palabras y frases
-tokens_palabras = [nltk.word_tokenize(oracion) for oracion in oraciones]
+for oracion in oraciones:
+    for categoria in categorias.keys():
+        if categoria.lower() in oracion.lower():
+            categorias[categoria].append(oracion)
 
-# Crear el vectorizador TF-IDF
-vectorizer = TfidfVectorizer()
-tfidf_matrix = vectorizer.fit_transform(oraciones)
+# Crear un vectorizador y matrices TF-IDF por categoría
+vectorizadores = {}
+tfidf_matrices = {}
 
-# Función para generar respuestas coherentes
-def generar_respuesta(consulta):
-    consulta_tfidf = vectorizer.transform([consulta])
-    similitudes = cosine_similarity(consulta_tfidf, tfidf_matrix)
+for categoria, textos in categorias.items():
+    if textos:
+        vectorizador = TfidfVectorizer()
+        matriz_tfidf = vectorizador.fit_transform(textos)
+        vectorizadores[categoria] = vectorizador
+        tfidf_matrices[categoria] = matriz_tfidf
+
+# Función para generar respuestas basadas en la categoría seleccionada
+def generar_respuesta(consulta, categoria):
+    if categoria not in categorias or not categorias[categoria]:
+        return "No se encontraron datos en la categoría seleccionada."
+
+    vectorizador = vectorizadores[categoria]
+    matriz_tfidf = tfidf_matrices[categoria]
+    consulta_tfidf = vectorizador.transform([consulta])
+    similitudes = cosine_similarity(consulta_tfidf, matriz_tfidf)
     indices_ordenados = np.argsort(similitudes[0])[::-1]
 
-    respuestas = [oraciones[i] for i in indices_ordenados[:3] if similitudes[0][i] > 0.4]
+    # Obtener respuestas más relevantes dentro de la categoría
+    respuestas = [categorias[categoria][i] for i in indices_ordenados[:3] if similitudes[0][i] > 0.4]
 
     if not respuestas:
-        return "No se encontró información específica sobre tu consulta."
+        return "No se encontró información específica sobre tu consulta en esta categoría."
 
     texto_unido = " ".join(respuestas)
     frases = nltk.sent_tokenize(texto_unido)
     random.shuffle(frases)
-
     respuesta_final = " ".join(frases[:2])
 
     return respuesta_final
 
-# Endpoint de consulta
+# Endpoint de consulta con selección de categoría
 @app.get("/buscar")
-def obtener_respuesta(pregunta: str):
-    return {"respuesta": generar_respuesta(pregunta)}
+def obtener_respuesta(pregunta: str, categoria: str = Query(..., description="Selecciona una categoría")):
+    return {"respuesta": generar_respuesta(pregunta, categoria)}
 
 # Ruta de prueba para verificar que el servidor está activo
 @app.get("/")
 def home():
     return {"mensaje": "El Profesor Virtual de Salud Pública está en línea."}
+
 
 
 
