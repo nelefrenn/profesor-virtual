@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 import random
 
+# Descargar recursos de NLTK en el servidor
 nltk.download('punkt')
 
 app = FastAPI()
@@ -13,13 +14,13 @@ app = FastAPI()
 # Habilitar CORS para permitir solicitudes desde GitHub Pages
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Esto permite TODAS las conexiones (útil para depuración)
+    allow_origins=["*"],  # Permite solicitudes desde cualquier origen
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
-# Cargar datos
+# Cargar datos desde el archivo de oraciones
 with open("tokens_oraciones.txt", "r", encoding="utf-8") as file:
     oraciones = file.readlines()
 
@@ -60,5 +61,6 @@ def obtener_respuesta(pregunta: str):
 @app.get("/")
 def home():
     return {"mensaje": "El Profesor Virtual de Salud Pública está en línea."}
+
 
 
