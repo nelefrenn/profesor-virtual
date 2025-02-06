@@ -8,6 +8,7 @@ import nltk
 import os
 import random
 import traceback  # Para capturar errores en los logs
+from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktParameters
 
 # 🔹 **Solución definitiva para descargar 'punkt' y otros modelos en Render**
 nltk_data_path = "/opt/render/nltk_data"
@@ -22,6 +23,11 @@ nltk.download('punkt', download_dir=nltk_data_path)
 nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_path)
 nltk.download('wordnet', download_dir=nltk_data_path)
 nltk.download('omw-1.4', download_dir=nltk_data_path)
+
+# 🔹 Cargar manualmente el tokenizador de español para evitar error `punkt_tab`
+punkt_param = PunktParameters()
+punkt_param.abbrev_types = set(["etc", "Sr", "Sra", "Dr", "Dra"])
+spanish_tokenizer = PunktSentenceTokenizer(punkt_param)
 
 app = FastAPI()
 
@@ -84,8 +90,8 @@ def generar_respuesta(consulta, categoria):
 
     texto_unido = " ".join(respuestas)
 
-    # 🔹 **Corrección: Especificar idioma en sent_tokenize**
-    frases = nltk.tokenize.sent_tokenize(texto_unido, language="spanish")
+    # 🔹 **Usar el tokenizador manual de español en lugar de `nltk.sent_tokenize`**
+    frases = spanish_tokenizer.tokenize(texto_unido)
     
     random.shuffle(frases)
     respuesta_final = " ".join(frases[:2])
