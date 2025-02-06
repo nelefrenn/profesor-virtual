@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profesor Virtual de Salud Pública</title>
     <script>
+        function iniciarChat() {
+            const nombre = document.getElementById("nombre").value.trim();
+            const bienvenidaDiv = document.getElementById("bienvenida");
+            const chatDiv = document.getElementById("chat");
+            
+            if (nombre === "") {
+                bienvenidaDiv.innerHTML = "Por favor, ingresa tu nombre.";
+                return;
+            }
+            
+            bienvenidaDiv.innerHTML = `¡Hola, ${nombre}! Bienvenido al Profesor Virtual de Salud Pública. ¿Sobre qué tema te gustaría aprender hoy?`;
+            document.getElementById("nombreInput").style.display = "none";
+            chatDiv.style.display = "block";
+        }
+
         async function buscarRespuesta() {
             const pregunta = document.getElementById("pregunta").value;
             const respuestaDiv = document.getElementById("respuesta");
@@ -28,9 +43,30 @@
 </head>
 <body>
     <h1>Profesor Virtual de Salud Pública</h1>
-    <label for="pregunta">Escribe tu pregunta:</label>
-    <input type="text" id="pregunta" placeholder="Ej. ¿Qué es la salud pública?">
-    <button onclick="buscarRespuesta()">Buscar</button>
-    <div id="respuesta"></div>
+    
+    <div id="nombreInput">
+        <label for="nombre">Ingresa tu nombre:</label>
+        <input type="text" id="nombre" placeholder="Tu nombre">
+        <button onclick="iniciarChat()">Iniciar</button>
+    </div>
+    
+    <div id="bienvenida"></div>
+    
+    <div id="chat" style="display: none;">
+        <h2>Temas Disponibles:</h2>
+        <ul>
+            <li>Epidemiología</li>
+            <li>Salud ambiental</li>
+            <li>Políticas de salud</li>
+            <li>Modelos de atención</li>
+            <li>Prevención y promoción de la salud</li>
+        </ul>
+        
+        <label for="pregunta">Escribe tu pregunta:</label>
+        <input type="text" id="pregunta" placeholder="Ej. ¿Qué es la salud pública?">
+        <button onclick="buscarRespuesta()">Buscar</button>
+        <div id="respuesta"></div>
+    </div>
 </body>
 </html>
+
