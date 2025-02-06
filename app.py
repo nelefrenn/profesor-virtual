@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -7,7 +8,7 @@ import nltk
 import os
 import random
 
-# Asegurar la carpeta donde NLTK almacena los datos en Render
+# 🔹 **Solución definitiva para descargar 'punkt' en Render**
 nltk_data_path = "/opt/render/nltk_data"
 if not os.path.exists(nltk_data_path):
     os.makedirs(nltk_data_path)
@@ -20,16 +21,16 @@ nltk.download('punkt', download_dir=nltk_data_path)
 
 app = FastAPI()
 
-# Habilitar CORS para permitir solicitudes desde cualquier dominio (incluyendo GitHub Pages)
+# 🔹 **Corrección definitiva de CORS**
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir todas las conexiones (para depuración)
+    allow_origins=["*"],  # Permitir TODAS las conexiones (necesario para GitHub Pages)
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Permitir todos los métodos (GET, POST, OPTIONS)
+    allow_headers=["*"],  # Permitir todos los encabezados
 )
 
-# CATEGORÍAS DISPONIBLES
+# 🔹 **CATEGORÍAS DISPONIBLES**
 categorias = {
     "Historia de la gestión en la salud pública": [],
     "Contexto, tendencias y retos de la Salud Pública": [],
@@ -38,7 +39,7 @@ categorias = {
     "Sistema general de seguridad social integral": [],
 }
 
-# Cargar datos y clasificarlos en categorías
+# 🔹 **Cargar datos y clasificarlos en categorías**
 with open("tokens_oraciones.txt", "r", encoding="utf-8") as file:
     oraciones = file.readlines()
 
@@ -49,7 +50,7 @@ for oracion in oraciones:
         if categoria.lower() in oracion.lower():
             categorias[categoria].append(oracion)
 
-# Crear un vectorizador y matrices TF-IDF por categoría
+# 🔹 **Crear un vectorizador y matrices TF-IDF por categoría**
 vectorizadores = {}
 tfidf_matrices = {}
 
@@ -60,7 +61,7 @@ for categoria, textos in categorias.items():
         vectorizadores[categoria] = vectorizador
         tfidf_matrices[categoria] = matriz_tfidf
 
-# Función para generar respuestas basadas en la categoría seleccionada
+# 🔹 **Función para generar respuestas basadas en la categoría seleccionada**
 def generar_respuesta(consulta, categoria):
     if categoria not in categorias or not categorias[categoria]:
         return "No se encontraron datos en la categoría seleccionada."
@@ -84,14 +85,17 @@ def generar_respuesta(consulta, categoria):
 
     return respuesta_final
 
-# Endpoint de consulta con selección de categoría
+# 🔹 **Endpoint de consulta con selección de categoría**
 @app.get("/buscar")
 def obtener_respuesta(pregunta: str, categoria: str = Query(..., description="Selecciona una categoría")):
-    return {"respuesta": generar_respuesta(pregunta, categoria)}
+    respuesta = generar_respuesta(pregunta, categoria)
+    return JSONResponse(content={"respuesta": respuesta}, headers={"Access-Control-Allow-Origin": "*"})
 
-# Ruta de prueba para verificar que el servidor está activo
+# 🔹 **Ruta de prueba para verificar que el servidor está activo**
 @app.get("/")
 def home():
+    return JSONResponse(content={"mensaje": "El Profesor Virtual de Salud Pública está en línea."}, headers={"Access-Control-Allow-Origin": "*"})
+
     return {"mensaje": "El Profesor Virtual de Salud Pública está en línea."}
 
 
