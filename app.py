@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 import os
 import random
+import traceback  # Importar para obtener detalles del error
 
 # 🔹 **Solución definitiva para descargar 'punkt' en Render**
 nltk_data_path = "/opt/render/nltk_data"
@@ -24,11 +25,11 @@ app = FastAPI()
 # 🔹 **Corrección definitiva de CORS**
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir TODAS las conexiones (necesario para GitHub Pages)
+    allow_origins=["*"],  # Permitir TODAS las conexiones
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],  # Permitir métodos necesarios
-    allow_headers=["*"],  # Permitir todos los encabezados
-    expose_headers=["Access-Control-Allow-Origin"],  # 🔹 Asegura que el navegador reciba la cabecera
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["Access-Control-Allow-Origin"],  # 🔹 Asegura que el navegador la reciba
 )
 
 # 🔹 **CATEGORÍAS DISPONIBLES**
@@ -86,14 +87,16 @@ def generar_respuesta(consulta, categoria):
 
     return respuesta_final
 
-# 🔹 **Endpoint de consulta con selección de categoría**
+# 🔹 **Endpoint de consulta con selección de categoría y detección de errores**
 @app.get("/buscar")
 def obtener_respuesta(pregunta: str, categoria: str = Query(..., description="Selecciona una categoría")):
     try:
         respuesta = generar_respuesta(pregunta, categoria)
         return JSONResponse(content={"respuesta": respuesta}, headers={"Access-Control-Allow-Origin": "*"})
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500, headers={"Access-Control-Allow-Origin": "*"})
+        error_detalles = traceback.format_exc()
+        print(error_detalles)  # 🔹 Esto imprimirá el error en los logs de Render
+        return JSONResponse(content={"error": str(e), "detalles": error_detalles}, status_code=500, headers={"Access-Control-Allow-Origin": "*"})
 
 # 🔹 **Ruta de prueba para verificar que el servidor está activo**
 @app.get("/")
