@@ -11,12 +11,12 @@ nltk.download('punkt')
 
 app = FastAPI()
 
-# Habilitar CORS para permitir solicitudes desde GitHub Pages
+# Habilitar CORS para permitir solicitudes desde cualquier dominio (incluyendo GitHub Pages)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://nelefrenn.github.io"],  # Reemplaza con tu dominio en GitHub Pages
+    allow_origins=["*"],  # Permitir todas las conexiones (para depuración)
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -84,6 +84,7 @@ def obtener_respuesta(pregunta: str, categoria: str = Query(..., description="Se
 @app.get("/")
 def home():
     return {"mensaje": "El Profesor Virtual de Salud Pública está en línea."}
+
 
 
 
