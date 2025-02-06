@@ -4,6 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profesor Virtual de Salud Pública</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E3F2FD; /* Azul claro, relacionado con la salud */
+            color: #1B5E20; /* Verde oscuro para transmitir confianza y salud */
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 32px;
+            color: #0D47A1; /* Azul oscuro para profesionalismo */
+        }
+        #nombreInput, #chat {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: auto;
+        }
+        input, button {
+            font-size: 18px;
+            padding: 10px;
+            margin: 10px;
+            width: 90%;
+            border: 2px solid #0D47A1;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #1B5E20;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #388E3C;
+        }
+        ul {
+            text-align: left;
+            display: inline-block;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
     <script>
         function iniciarChat() {
             const nombre = document.getElementById("nombre").value.trim();
@@ -50,7 +93,7 @@
         <button onclick="iniciarChat()">Iniciar</button>
     </div>
     
-    <div id="bienvenida"></div>
+    <div id="bienvenida" style="font-size: 20px; margin-top: 20px;"></div>
     
     <div id="chat" style="display: none;">
         <h2>Temas Disponibles:</h2>
@@ -65,8 +108,9 @@
         <label for="pregunta">Escribe tu pregunta:</label>
         <input type="text" id="pregunta" placeholder="Ej. ¿Qué es la salud pública?">
         <button onclick="buscarRespuesta()">Buscar</button>
-        <div id="respuesta"></div>
+        <div id="respuesta" style="font-size: 18px; margin-top: 20px;"></div>
     </div>
 </body>
 </html>
+
 
